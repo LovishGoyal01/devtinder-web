@@ -3,8 +3,9 @@ import Body from "./componants/Body";
 import Login from "./componants/Login";
 import Profile from "./componants/Profile";
 import { Provider } from "react-redux";
-import appStore from "./utils/appstore";
+import appStore from "./utils/appStore";
 import Feed from "./componants/Feed";
+import Connections from "./componants/Connections";
 
 const App = ()=> {
   
@@ -17,6 +18,7 @@ const App = ()=> {
           <Route path="/" element={<Feed/>} />
           <Route path="/login" element={<Login/>} />
           <Route path="/profile" element={<Profile/>} />
+          <Route path="/connections" element={<Connections/>} />
         </Route>  
       </Routes>
    </BrowserRouter>
