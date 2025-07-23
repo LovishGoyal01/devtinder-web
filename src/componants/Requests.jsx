@@ -2,14 +2,13 @@ import axios from "axios";
 import { Base_URL } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
-import { addRequest } from "../utils/requestSlice";
+import { addRequest, removeRequest } from "../utils/requestSlice";
 
 const Requests = () =>{
 
     const requests = useSelector((store)=>store.requests);
     const dispatch = useDispatch();
-
-
+   
      const fetchRequests =  async() =>{
        try{ 
         const res = await axios.get(Base_URL + "/user/requests/received" , {withCredentials:true})
@@ -20,12 +19,22 @@ const Requests = () =>{
        }
      }
 
+     const handleRequest = async (status,_id) =>{
+        try{
+        await axios.post(Base_URL+ "/request/review/"+status+"/"+_id ,{}, {withCredentials:true})
+        dispatch(removeRequest(_id));
+        }catch(err){
+         console.log(err);
+       }
+    }
+
+
      useEffect(()=>{
         fetchRequests();
      },[])
 
-    if(requests === null) return <h1>Loading...</h1>;
-    if(requests.length === 0) return <h1>No Requests Found</h1>
+    if(requests === null) return <h1 className="flex justify-center my-10">Loading...</h1>;
+    if(requests.length === 0) return <h1 className="flex justify-center my-10">No Requests Found</h1>
 
     return (
   <div className="flex flex-col my-10 w-[700px] mx-auto">
@@ -52,8 +61,8 @@ const Requests = () =>{
              <div className="flex justify-between ">
               <p className="max-w-3/5 ">{request.fromUserId.about}</p>
                <div className="card-actions justify-end mx-2">
-                <button className="btn btn-secondary px-4">Accept</button>
-                <button className="btn btn-primary px-5">Reject</button>
+                <button className="btn btn-secondary px-4" onClick={()=>handleRequest("accepted",request.fromUserId._id)} >Accept</button>
+                <button className="btn btn-primary px-5" onClick={()=>handleRequest("rejected",request.fromUserId._id)}>Reject</button>
               </div>
              </div>   
             </div>

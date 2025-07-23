@@ -24,6 +24,9 @@ const Feed = () => {
         getFeed();
     },[])
 
+    if(!feed) return( <h1 className="flex justify-center text-2xl">Loading!!</h1>)
+    if(feed.length === 0) return( <h1 className="flex justify-center text-2xl">No more Users</h1>)
+
     return(
        feed && (
            <div className="flex justify-center my-10">
