@@ -1,10 +1,9 @@
 import axios from "axios";
 import { useState } from "react";
-import { useDispatch} from "react-redux";
+import { useDispatch, useSelector} from "react-redux";
 import { addUser } from "../utils/userSlice";
 import { useNavigate } from "react-router-dom";
 import { Base_URL } from "../utils/constants";
-
 
 const Login = ()=> {
 
@@ -12,8 +11,7 @@ const Login = ()=> {
   const [lastName , setLastname] = useState("");
   const [emailId , setEmailId] = useState("Lovish@gmail.com");
   const [password , setPassword] = useState("LovishG@123");
-  const [age , setAge] =useState("");
-  const [gender , setGender] = useState("");
+
 
   const [isLoginForm , setIsLoginForm] = useState(false);
 
@@ -21,7 +19,7 @@ const Login = ()=> {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const user = useSelector((store)=>store.user);
   const handleLogin = async () => {
 
     try{
@@ -45,24 +43,53 @@ const Login = ()=> {
         lastName,
         emailId,
         password,
-        age,
-        gender,
+       
       },{withCredentials:true});
 
      dispatch(addUser(res.data?.data));
-     navigate("/");
+     navigate("/profile");
     }catch(err){
       setError(err?.response?.data || "Something went wrong!!");
     }
   }
 
+  if(user)
+  {
+    navigate("/profile");
+  }
+
+
   return (
     <>
-    <div className="flex justify-center my-6 mb-25">
-       <div className="card card-border bg-base-100 w-90">
+   <div
+      className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center"
+      style={{ backgroundImage: `url('/backgroundImage.png')` }}
+   >
+    <div className="flex w-200 justify-center bg-gradient-to-b from-rose-500 to-purple-800 bg-cover bg-center shadow-gray-100 p-4">
+       <div className="card  w-96 flex items-center justify-center text-center"    
+       >
+       {isLoginForm &&(
+         <div className="text-primary-content  ">
+          <h1 className="text-white font-bold text-4xl m-2 flex justify-center">Welcome Back</h1>
+          <p className="text-white ">Login to continue </p>
+          <p className="text-white ">&</p>
+          <p className="w-70">Continue exploring new connections based on your interests </p>
+        </div>
+       )}  
+       {!isLoginForm &&(
+         <div className="text-primary-content ">
+          <h1 className="text-white font-bold text-4xl m-2">Welcome </h1>
+          <p className="text-white ">Signup to continue </p>
+          <p className="text-white ">&</p>
+          <p className="text-white w-70">Start exploring new connections, make friends & meet new people around the world</p>
+        </div>
+       )}  
+       </div>
+       <div className="card card-border bg-base-100 w-96 ">
          <div className="card-body">
-           <h2 className="card-title flex justify-center">{isLoginForm ? "Login" : "Sign Up"}</h2>
+           <h2 className="card-title  flex justify-center text-primary">{isLoginForm ? "User Login" : "Sign Up"}</h2>
            <div>
+
                  {!isLoginForm && ( <>
                   <fieldset className="fieldset">
                     <legend className="fieldset-legend">First Name:</legend>
@@ -76,22 +103,13 @@ const Login = ()=> {
                  </>)}
                   <fieldset className="fieldset">
                     <legend className="fieldset-legend">Email ID:</legend>
-                      <input type="text" className="input" value={emailId} onChange={(e)=>setEmailId(e.target.value)} />
+                      <input type="email" className="input" value={emailId} onChange={(e)=>setEmailId(e.target.value)} />
                   </fieldset>
                   <fieldset className="fieldset">
                     <legend className="fieldset-legend">Password:</legend>
-                      <input type="text" className="input" value={password} onChange={(e)=>setPassword(e.target.value)} />
+                      <input type="password" className="input" value={password} onChange={(e)=>setPassword(e.target.value)} />
                   </fieldset>
-                 {!isLoginForm && ( <>
-                  <fieldset className="fieldset">
-                    <legend className="fieldset-legend">Age:</legend>
-                      <input type="text" className="input" value={age} onChange={(e)=>setAge(e.target.value)} />
-                  </fieldset>
-                  <fieldset className="fieldset">
-                    <legend className="fieldset-legend">Gender:</legend>
-                      <input type="text" className="input" value={gender} onChange={(e)=>setGender(e.target.value)} />
-                  </fieldset>
-                 </>)}
+                 
            </div>
            <p className="text-red-500">{error}</p>
            <div className="card-actions justify-center">
@@ -101,6 +119,7 @@ const Login = ()=> {
          </div>
        </div>
     </div>
+  </div>   
     </>
   )
 }

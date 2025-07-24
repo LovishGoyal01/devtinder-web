@@ -27,9 +27,10 @@ const NavBar = () =>{
    
   return(
         <div>
-             <div className="navbar bg-info-content shadow-sm ">
+             <div className="navbar  bg-gradient-to-b from-info-content to-info-content/90   shadow-sm fixed ">
                <div className="flex-1">
-                <Link to="/" className="btn btn-ghost text-xl text-white">🧑‍💻 DevTinder</Link>
+               {user && <Link to="/" className="btn btn-ghost text-xl text-white">🧑‍💻 DevTinder</Link>}
+               {!user && <Link to="/login" className="btn btn-ghost text-xl text-white">🧑‍💻 DevTinder</Link>}
                </div>
 
               {user && (

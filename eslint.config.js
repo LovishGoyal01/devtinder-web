@@ -6,6 +6,16 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
   globalIgnores(['dist']),
+  // Node.js config for files like tailwind.config.js, postcss.config.js, etc.
+  {
+    files: ['tailwind.config.js', 'postcss.config.js', '*.config.js'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+  },
+  // Main project config for JSX files
   {
     files: ['**/*.{js,jsx}'],
     extends: [
