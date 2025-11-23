@@ -1,1 +1,1 @@
-export const Base_URL = "http://localhost:1505";
+export const Base_URL = "https://your-railway-domain.up.railway.app";
