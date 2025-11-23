@@ -24,6 +24,12 @@ const Feed = () => {
         getFeed();
     },[])
 
+  useEffect(() => {
+    if (feed && feed.length === 0) {
+      getFeed();  // reload feed
+    }
+  }, [feed]);
+
     if(!feed) return( <h1 className="flex bg-gradient-to-r from-rose-400 to-blue-400 h-screen  text-white   justify-center text-2xl">Loading!!</h1>)
     if(feed.length === 0) return( <h1 className="bg-gradient-to-r from-rose-400 to-blue-400 h-screen  text-white text-2xl flex items-center justify-center">No more Users</h1>)
 

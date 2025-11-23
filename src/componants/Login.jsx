@@ -9,8 +9,8 @@ const Login = ()=> {
 
   const [firstName , setFirstName] =useState("");
   const [lastName , setLastname] = useState("");
-  const [emailId , setEmailId] = useState("Lovish@gmail.com");
-  const [password , setPassword] = useState("LovishG@123");
+  const [emailId , setEmailId] = useState("lovish1@gmail.com");
+  const [password , setPassword] = useState("Lovish@123");
 
 
   const [isLoginForm , setIsLoginForm] = useState(false);
@@ -81,7 +81,7 @@ const Login = ()=> {
           <h1 className="text-white font-bold text-4xl m-2">Welcome </h1>
           <p className="text-white ">Signup to continue </p>
           <p className="text-white ">&</p>
-          <p className="text-white w-70">Start exploring new connections, make friends & meet new people around the world</p>
+          <p className="text-white w-70">Start exploring new connections, meet new people & make friends  around the world</p>
         </div>
        )}  
        </div>
@@ -115,7 +115,7 @@ const Login = ()=> {
            <div className="card-actions justify-center">
              <button className="btn btn-primary" onClick={isLoginForm? handleLogin : handleSignup} >{isLoginForm ? "Login" : "Sign Up"}</button>
            </div>
-           <p className="flex justify-center cursor-pointer" onClick={()=>setIsLoginForm(!isLoginForm)} >{isLoginForm?"New User? Signup Here" : "Already a User? Login Here"}</p>
+           <p className="flex justify-center cursor-pointer hover:text-blue-500" onClick={()=>setIsLoginForm(!isLoginForm)} >{isLoginForm?"New User? Signup Here" : "Already a User? Login Here"}</p>
          </div>
        </div>
     </div>

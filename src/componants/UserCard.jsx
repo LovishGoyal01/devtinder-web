@@ -18,7 +18,6 @@ const UserCard = ({user}) => {
      }
    }
 
-
     return (
         <div>
           <div className="card bg-base-100 w-90 h-125 shadow-md hover:shadow-2xl mt-25">

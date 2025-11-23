@@ -7,40 +7,41 @@ import { addUser } from "../utils/userSlice";
 import { useEffect } from "react";
 import axios from "axios";
 
-const Body = ()=> {
-  
-   const dispatch = useDispatch();
-   const navigate = useNavigate();
+const Body = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-   const user = useSelector((store)=>store.user);
+  const user = useSelector((store) => store.user);
 
-   const fetchUser = async ()=>{
-    try{
-    const res = await axios.get(Base_URL + "/profile/view" , {
-      withCredentials:true,
-    })
-    dispatch(addUser(res.data));
-   }catch(err){
-    if(err.status === 401){
-     navigate("/login");
+  const fetchUser = async () => {
+    try {
+      const res = await axios.get(Base_URL + "/profile/view", {
+        withCredentials: true,
+      });
+
+      dispatch(addUser(res.data));
+
+    } catch (err) {
+      if (err.response && err.response.status === 401) {
+        navigate("/login");
+      }
+      console.error(err);
     }
-    console.error(err);
-   }
-  }
-   useEffect(()=>{
-    if(!user){
-    fetchUser();
+  };
+
+  useEffect(() => {
+    if (!user) {
+      fetchUser();
     }
-   },[]);
-   
+  }, []); 
 
   return (
     <>
-    <NavBar/>
-    <Outlet/>
-    <Footer/>
+      <NavBar />
+      <Outlet />
+      <Footer />
     </>
-  )
-}
+  );
+};
 
 export default Body;

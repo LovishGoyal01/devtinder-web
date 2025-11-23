@@ -33,8 +33,13 @@ const Requests = () =>{
         fetchRequests();
      },[])
 
-    if(requests === null) return <h1 className="flex justify-center my-10">Loading...</h1>;
-    if(requests.length === 0) return <h1 className="flex justify-center my-10">No Requests Found</h1>
+     if (!requests) return;
+  if (requests.length === 0)
+    return (
+      <h1 className="bg-gradient-to-r from-rose-400 to-blue-400 min-h-screen text-white text-3xl flex items-center justify-center">
+        No Requests Found
+      </h1>
+    );
 
     return (
 <div className="bg-gradient-to-r from-rose-400 to-blue-400 min-h-screen" >      
