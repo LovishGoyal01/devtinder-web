@@ -37,7 +37,7 @@ const UserCard = ({user}) => {
                  <span className=" ">{about}</span>
                </div>
                 
-               {skills && <div>
+               {skills.length>0 && <div>
                  <span className="font-bold mr-1">Skills: </span>
                  <span className="">{skills.join(", ")}</span>
                </div>
