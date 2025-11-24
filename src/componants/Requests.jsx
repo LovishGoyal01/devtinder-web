@@ -51,28 +51,41 @@ const Requests = () =>{
       {requests.map((request) => (
         <div key={request._id}>
           <div className="card card-side bg-base-100 shadow-sm w-full h-32">
-            <figure className="w-32 h-32 flex-shrink-0 overflow-hidden bg-amber-100 rounded-md">
+            <figure className="w-32 h-32 flex-shrink-0 overflow-hidden rounded-md">
                <img
                 src={request.fromUserId.photoURL}
                alt="User"
                className="w-full h-full object-cover"
               />
             </figure>
-            <div className="card-body pt-2">
-             <div className="flex justify-between">   
-              <h2 className="card-title">
-                {request.fromUserId.firstName + " " + request.fromUserId.lastName}
-              </h2>
-              <h4 className="font-bold my-3 mx-4">{request.fromUserId.age + "/" + request.fromUserId.gender} </h4>
-             </div>
-             <div className="flex justify-between ">
-              <p className="max-w-3/5">{request.fromUserId.about}</p>
-               <div className="card-actions justify-end mx-2">
-                <button className="btn btn-secondary px-4" onClick={()=>handleRequest("accepted",request.fromUserId._id)} >Accept</button>
-                <button className="btn btn-primary px-5" onClick={()=>handleRequest("rejected",request.fromUserId._id)}>Reject</button>
-              </div>
-             </div>   
+
+            <div className="card-body pt-2 my-1">
+
+               <div className="flex justify-between">   
+                  <h2 className="card-title font-bold"> {request.fromUserId.firstName + " " + request.fromUserId.lastName} </h2>
+                  <h4 className="font-bold  ">{request.fromUserId.age + "/" + request.fromUserId.gender} </h4>
+               </div>
+
+               <div className=" ">
+                  <div className=" max-h-10">
+                      <span className="font-bold text-black">About: </span>
+                      <span className=" text-black">{request.fromUserId.about}</span>
+                  </div>
+               </div>  
+
+              {request.fromUserId.skills.length>0 && <div className=" ">
+                  <div className="">
+                      <span className="font-bold text-black">Skills: </span>
+                      <span className=" text-black">{request.fromUserId.skills}</span>
+                  </div>
+               </div>} 
+
             </div>
+            <div className="card-actions flex-col mx-2 my-4 mr-3 ">
+                <button className="btn btn-secondary px-4.5 mb-1" onClick={()=>handleRequest("accepted",request.fromUserId._id)} >Accept</button>
+                <button className="btn btn-primary px-5" onClick={()=>handleRequest("rejected",request.fromUserId._id)}>Reject</button>
+            </div>
+
           </div>
         </div>
       ))}

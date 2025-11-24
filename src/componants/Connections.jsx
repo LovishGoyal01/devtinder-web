@@ -44,7 +44,7 @@ const Connections = () => {
           {connections.map((connection) => (
             <div key={connection._id}>
               <div className="card card-side bg-base-100 shadow-sm w-full h-32">
-                <figure className="w-32 h-32 flex-shrink-0 overflow-hidden bg-amber-100 rounded-md">
+                <figure className="w-32 h-32 flex-shrink-0 overflow-hidden rounded-md">
                   <img
                     className="w-full h-full object-cover"
                     src={connection.photoURL}
@@ -54,25 +54,35 @@ const Connections = () => {
 
                 <div className="card-body pt-2">
                   <div className="flex justify-between">
-                    <h2 className="card-title text-black">
-                      {connection.firstName + " " + connection.lastName}
-                    </h2>
-                    <h4 className="font-bold my-3 mx-4 text-black">
-                      {connection.age + "/" + connection.gender}
-                    </h4>
+                     <h2 className="card-title text-black">
+                       {connection.firstName + " " + connection.lastName}
+                     </h2>
+                     <h4 className="font-bold my-1 mx-4 text-black">
+                       {connection.age + "/" + connection.gender}
+                     </h4>
                   </div>
 
                   <div className="flex justify-between">
-                    <p className="max-w-3/5 text-black bg-yellow-50">
-                      {connection.about}
-                    </p>
+                     <div className="w-4/5">
+                       <div className=" max-h-10 ">
+                         <span className="font-bold text-black">About: </span>
+                         <span className=" text-black">{connection.about}</span>
+                       </div>
+                      
+                      {connection.skills.length>0 && <div className=" ">
+                         <span className="font-bold text-black">Skills: </span>
+                        <span className="text-black">{connection.skills}</span> 
+                      </div>} 
+
+                    </div>
 
                     <Link to={"/chat/" + connection._id}>
-                      <button className="btn btn-primary px-4 mr-3">
+                      <button className="btn btn-primary px-5 mr-3 mt-3">
                         Chat
                       </button>
                     </Link>
                   </div>
+
                 </div>
               </div>
             </div>

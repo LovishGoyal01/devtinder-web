@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
 import { Base_URL } from "../utils/constants";
@@ -13,6 +13,7 @@ const EditProfile = ({ user }) => {
   const [age, setAge] = useState(user.age);
   const [gender, setgender] = useState(user.gender);
   const [about, setAbout] = useState(user.about);
+  const [skills, setSkills] = useState(user.skills || []);
   const [error, setError] = useState("");
   const [showToast, setShowToast] = useState(false);
   const [showErrorToast, setShowErrorToast] = useState(false);
@@ -79,6 +80,33 @@ const EditProfile = ({ user }) => {
     setTimeout(() => setShowErrorToast(false), 3000);
     return; // stop save request
   }
+  if (skills.length == 0) {
+    setError("If no skills type Beginner");
+    setShowErrorToast(true);
+
+    setTimeout(() => setShowErrorToast(false), 3000);
+    return; // stop save request
+  }
+   if (!age || age<18) {
+    setError("Age cannot be less than 18");
+    setShowErrorToast(true);
+
+    setTimeout(() => setShowErrorToast(false), 3000);
+    return; // stop save request
+  }
+   if (!gender) {
+    setError("Select gender");
+    setShowErrorToast(true);
+
+    setTimeout(() => setShowErrorToast(false), 3000);
+    return; // stop save request
+  }
+
+let skillsArray = skills.map(s =>
+  s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()
+);
+
+    console.log("Sending skills:", skillsArray);
 
     try {
       const res = await axios.patch(
@@ -90,6 +118,7 @@ const EditProfile = ({ user }) => {
           age,
           gender,
           about,
+          skills:skillsArray,
         },
         { withCredentials: true }
       );
@@ -112,18 +141,6 @@ const EditProfile = ({ user }) => {
   };
 
   // -------------------------------------------------------
-  // Fix default gender & age
-  // -------------------------------------------------------
-  useEffect(() => {
-    if (!user.gender || user.gender === "") {
-      setgender("Select Gender");
-    }
-    if (!user.age) {
-      setAge(18);
-    }
-  }, [user.gender, user.age]);
-
-  // -------------------------------------------------------
   // UI
   // -------------------------------------------------------
   return (
@@ -132,7 +149,7 @@ const EditProfile = ({ user }) => {
         <div className="flex justify-center mt-28 mx-10">
           <div className="card card-border bg-base-100 w-96 h-125 -mt-3">
             <div className="card-body">
-              <h2 className="card-title text-primary">Edit Profile</h2>
+              <h2 className="card-title text-primary -mt-2.5">Edit Profile</h2>
 
               {/* First + Last */}
               <div className="flex gap-2">
@@ -238,7 +255,7 @@ const EditProfile = ({ user }) => {
               <fieldset className="fieldset rounded-md">
                 <legend className="fieldset-legend">About:</legend>
                 <textarea
-                  className="textarea textarea-bordered w-84 min-h-[80px] text-sm resize-none"
+                  className="textarea textarea-bordered w-84 min-h-[40px] text-sm resize-none"
                   value={about}
                   onChange={(e) => setAbout(e.target.value)}
                 ></textarea>
@@ -253,9 +270,20 @@ const EditProfile = ({ user }) => {
                 </div>
               )}
 
-              {/* save button */}
-              <div className="card-actions justify-center">
-                <button className="btn btn-primary" onClick={handleEdit}>
+              {/* save button & skills */}
+              <div className="card-actions  flex justify-between">
+                 <fieldset className="fieldset">
+                  <legend className="fieldset-legend ">Skills:</legend>
+                  <input
+                    className="input w-60"
+                    value={skills}
+                    onChange={(e) =>{
+                      const arr = e.target.value.split(",").map((s)=>s.trim());
+                       setSkills(arr)
+                    }}
+                  />
+                </fieldset>
+                <button className="btn btn-primary mt-8.5 px-6" onClick={handleEdit}>
                   Save
                 </button>
               </div>
@@ -265,7 +293,7 @@ const EditProfile = ({ user }) => {
 
         {/* Live Preview */}
         <UserCard
-          user={{ firstName, lastName, photoURL, age, gender, about }}
+          user={{ firstName, lastName, photoURL, age, gender, about, skills }}
         />
       </div>
 
