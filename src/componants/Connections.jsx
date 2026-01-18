@@ -4,19 +4,27 @@ import { useDispatch, useSelector } from "react-redux";
 import { addConnections } from "../utils/connectionSlice";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const Connections = () => {
+  
   const connections = useSelector((store) => store.connections);
   const dispatch = useDispatch();
 
   const fetchConnections = async () => {
     try {
-      const res = await axios.get(Base_URL + "/user/connections", {
+      const {data} = await axios.get(Base_URL + "/user/connections", {
         withCredentials: true,
       });
-      dispatch(addConnections(res.data?.data));
-    } catch (err) {
-      console.log(err);
+      if(data.success){
+         dispatch(addConnections(data.connections));
+         toast.success(data.message)
+      }else{
+         toast.error(data.message)
+      }
+     
+    } catch (error) {
+      toast.error(error.message);
     }
   };
 
@@ -24,75 +32,82 @@ const Connections = () => {
     fetchConnections();
   }, []);
 
-  if (!connections) return null;
-
-  if (connections.length === 0)
+  if (!connections) {
     return (
-      <h1 className="bg-gradient-to-r from-rose-400 to-blue-400 min-h-screen text-white text-3xl flex items-center justify-center">
-        No connections Found! Go to feed and start exploring
-      </h1>
+      <div className="flex items-center justify-center h-[60vh]">
+        <h1 className="text-white text-2xl font-semibold">Fetching connections…</h1>
+      </div>
     );
+  }
+
+  if (connections.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] text-center">
+        <h1 className="text-white text-2xl font-semibold mb-2">No connections yet 👋</h1>
+        <p className="text-white/80 text-sm max-w-md"> Go to the feed and start exploring to find people you’d like to connect with.</p>
+      </div>
+    );
+  }
+   
 
   return (
-    <div className="bg-gradient-to-r from-rose-400 to-blue-400 min-h-screen text-white pt-20">
-      <div className="flex flex-col w-[700px] mx-auto">
-        <h1 className="font-bold text-2xl text-center mb-3 text-gray-700">
-          Connections
-        </h1>
+     <div className="flex flex-col items-center pt-24 w-full max-w-[720px] mx-auto">
+       <h1 className="font-bold text-2xl mb-6 text-white">
+         Connections
+       </h1>
+   
+      <div className="flex flex-col gap-4 w-full">
+        {connections.map((user) => (
+           <div key={user._id} className="flex bg-white/85 backdrop-blur-lg shadow-lg rounded-xl overflow-hidden h-[130px] border border-indigo-200/40 hover:shadow-xl hover:-translate-y-[1px] transition-all">    {/* Avatar */}
+             <div className="w-32 h-full flex-shrink-0">
+               <img src={user.photoURL} alt="User" className="w-full h-full object-cover"/>
+             </div>
+   
+             {/* Info */}
+             <div className="flex flex-col justify-start px-4 py-2 flex-1">
+               <div>
+                 <div className="flex justify-between items-center">
+                   <h2 className="font-semibold text-lg text-slate-900">{user.firstName} {user.lastName}</h2>
+   
+                   {user.age && ( <span className="text-sm font-medium text-slate-600">{user.age} · {user.gender}</span> )}
+                 </div>
 
-        <div className="flex flex-col gap-4 w-full">
-          {connections.map((connection) => (
-            <div key={connection._id}>
-              <div className="card card-side bg-base-100 shadow-sm w-full h-32">
-                <figure className="w-32 h-32 flex-shrink-0 overflow-hidden rounded-md">
-                  <img
-                    className="w-full h-full object-cover"
-                    src={connection.photoURL}
-                    alt="User"
-                  />
-                </figure>
+                 {/* About */}
+                 <p className="text-sm text-slate-700 mt-1 line-clamp-2">{user.about}</p>
+               </div>
+   
+               {/* Skills */}
+               {user.skills?.length > 0 && (
+                 <div className="flex flex-wrap gap-2 mt-2 ">
+                   {user.skills.slice(0, 3).map((skill, idx) => (
+                     <span key={idx} className="bg-slate-100 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-full text-xs font-semibold">
+                       {skill}
+                     </span>
+                   ))}
+                   {user.skills.length > 3 && (
+                     <span className="bg-slate-200 text-slate-600 px-2.5 py-1 rounded-full text-xs font-semibold">
+                       +{user.skills.length - 3} more
+                     </span>
+                   )}
+                 </div>
+               )}
+             </div>
 
-                <div className="card-body pt-2">
-                  <div className="flex justify-between">
-                     <h2 className="card-title text-black">
-                       {connection.firstName + " " + connection.lastName}
-                     </h2>
-                     <h4 className="font-bold my-1 mx-4 text-black">
-                       {connection.age + "/" + connection.gender}
-                     </h4>
-                  </div>
+             {/* Action */}
+             <div className="flex flex-col items-center justify-center px-5 border-l border-slate-200">
+               <span className="text-[11px] text-slate-500 mb-1 tracking-wide">Message</span>
+               <Link to={`/chat/${user._id}`}>
+                 <button className="btn bg-indigo-500 hover:bg-indigo-600 text-white min-w-[100px] shadow-md">Chat</button>
+               </Link>
+             </div>
+           </div>
+         ))}
+       </div>
+   
+       <div className="mb-20" />
+     </div>
+   );
 
-                  <div className="flex justify-between">
-                     <div className="w-4/5">
-                       <div className=" max-h-10 ">
-                         <span className="font-bold text-black">About: </span>
-                         <span className=" text-black">{connection.about}</span>
-                       </div>
-                      
-                      {connection.skills.length>0 && <div className=" ">
-                         <span className="font-bold text-black">Skills: </span>
-                        <span className="text-black">{connection.skills}</span> 
-                      </div>} 
-
-                    </div>
-
-                    <Link to={"/chat/" + connection._id}>
-                      <button className="btn btn-primary px-5 mr-3 mt-3">
-                        Chat
-                      </button>
-                    </Link>
-                  </div>
-
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="mb-20"></div>
-      </div>
-    </div>
-  );
 };
 
 export default Connections;

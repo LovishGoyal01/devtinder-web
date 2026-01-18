@@ -3,11 +3,11 @@ import EditProfile from "./EditProfile";
 
 const Profile = ()=> {
   
-  const user = useSelector((store) => store.user);
+  const user = useSelector((store) => store.user); 
 
   return (
     <>
-   {user && <div><EditProfile user={user} /></div> }
+   {user && <div className="flex items-center"><EditProfile user={user} /></div> }
     </>
   )
 }

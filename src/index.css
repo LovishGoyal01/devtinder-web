@@ -1,2 +1,11 @@
 @import "tailwindcss";
 @plugin "daisyui";
+
+/* ✅ Global input focus styles */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #6366f1; /* indigo-500 */
+  box-shadow: 0 0 0 1px #6366f1;
+}

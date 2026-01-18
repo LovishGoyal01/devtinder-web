@@ -4,21 +4,24 @@ import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
 import { Base_URL } from "../utils/constants";
 import UserCard from "./UserCard";
+import toast from "react-hot-toast";
 
 const EditProfile = ({ user }) => {
 
-  const [firstName, setFirstName] = useState(user.firstName);
-  const [lastName, setLastName] = useState(user.lastName);
-  const [photoURL, setPhotoURL] = useState(user.photoURL);
-  const [age, setAge] = useState(user.age);
-  const [gender, setgender] = useState(user.gender);
-  const [about, setAbout] = useState(user.about);
-  const [skills, setSkills] = useState(user.skills || []);
-  const [error, setError] = useState("");
-  const [showToast, setShowToast] = useState(false);
-  const [showErrorToast, setShowErrorToast] = useState(false);
+  const [firstName, setFirstName] = useState(user?.firstName || "");
+  const [lastName, setLastName] = useState(user?.lastName || "");
+  const [photoURL, setPhotoURL] = useState(user?.photoURL || "");
+  const [age, setAge] = useState(user?.age || "");
+  const [gender, setGender] = useState(user?.gender || "");
+  const [about, setAbout] = useState(user?.about || "");
 
-
+  const [skillsInput, setSkillsInput] = useState(user?.skills?.join(", ") || "");
+  const MAX_SKILL_LENGTH = 20;
+  const parsedSkills = skillsInput
+  .split(",")
+  .map(s => s.trim().slice(0, MAX_SKILL_LENGTH))
+  .filter(Boolean);
+  
   const dispatch = useDispatch();
 
   // -------------------------------------------------------
@@ -46,9 +49,9 @@ const EditProfile = ({ user }) => {
 
       return json.secure_url;
 
-    } catch (err) {
-      console.error("Cloudinary Upload Error:", err);
-      throw new Error("Failed to upload image to Cloudinary");
+    } catch (error) {
+      const message = "Failed to upload image to Cloudinary" || error?.message;
+      toast.error(message);
     }
   };
 
@@ -69,48 +72,14 @@ const EditProfile = ({ user }) => {
 };
 
   const handleEdit = async () => {
-    setError("");
 
-  const isValid = await validateImageURL(photoURL);
+   const isValid = await validateImageURL(photoURL);
 
-  if (!isValid) {
-    setError("Invalid Photo URL!");
-    setShowErrorToast(true);
-
-    setTimeout(() => setShowErrorToast(false), 3000);
-    return; // stop save request
-  }
-  if (skills.length == 0) {
-    setError("If no skills type Beginner");
-    setShowErrorToast(true);
-
-    setTimeout(() => setShowErrorToast(false), 3000);
-    return; // stop save request
-  }
-   if (!age || age<18) {
-    setError("Age cannot be less than 18");
-    setShowErrorToast(true);
-
-    setTimeout(() => setShowErrorToast(false), 3000);
-    return; // stop save request
-  }
-   if (!gender) {
-    setError("Select gender");
-    setShowErrorToast(true);
-
-    setTimeout(() => setShowErrorToast(false), 3000);
-    return; // stop save request
-  }
-
-let skillsArray = skills.map(s =>
-  s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()
-);
-
-    console.log("Sending skills:", skillsArray);
+   if (!isValid) { toast.error("Invalid Photo URL!") }
 
     try {
-      const res = await axios.patch(
-        Base_URL + "/profile/edit",
+
+      const {data} = await axios.patch( Base_URL + "/profile/edit",
         {
           firstName,
           lastName,
@@ -118,25 +87,22 @@ let skillsArray = skills.map(s =>
           age,
           gender,
           about,
-          skills:skillsArray,
+          skills:parsedSkills,
         },
         { withCredentials: true }
       );
 
-      dispatch(addUser(res.data?.data));
+      if(data.success){
+        console.log(age + gender )
+        dispatch(addUser(data.user));
+        toast.success(data.message);
+      }else{
+        toast.error(data.message);
+      }
 
-      setShowToast(true);
-      setTimeout(() => {
-        setShowToast(false);
-      }, 3000);
-    } catch (err) {
-        const message = err?.response?.data || "Something went wrong!!";
-        setError(message);
-        setShowErrorToast(true);
-
-        setTimeout(() => {
-           setShowErrorToast(false);
-        }, 3000);
+     } catch (error) {
+        const message = error?.response?.data?.message || "Something went wrong!!";
+        toast.error(message);
      }
   };
 
@@ -144,169 +110,104 @@ let skillsArray = skills.map(s =>
   // UI
   // -------------------------------------------------------
   return (
-    <>
-      <div className="flex justify-center bg-gradient-to-r from-rose-400 to-blue-400 min-h-screen -mt-0">
-        <div className="flex justify-center mt-28 mx-10">
-          <div className="card card-border bg-base-100 w-96 h-125 -mt-3">
-            <div className="card-body">
-              <h2 className="card-title text-primary -mt-2.5">Edit Profile</h2>
+     <div className="flex justify-center gap-10 ">
+       {/* EDIT FORM */}
+       <div className="card bg-white w-[420px] shadow-md">
+         <div className="card-body p-4">
+           <h2 className="text-xl font-bold text-gray-900 mb-3">Edit Profile</h2>
+   
+           {/* Name */}
+           <div className="flex gap-3">
+             <div className="flex-1">
+               <label className="text-sm font-medium text-gray-600">First Name</label>
+               <input className="input w-full" value={firstName} onChange={(e) => setFirstName(e.target.value)}/>
+             </div>
+   
+             <div className="flex-1">
+               <label className="text-sm font-medium text-gray-600">Last Name</label>
+               <input className="input w-full" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+             </div>
+           </div>
+   
+           {/* Photo */}
+           <div className="mt-2">
+             <label className="text-sm font-medium text-gray-600">Profile Photo</label>
+             <div className="relative">
+               <input className="input w-full pr-10" placeholder="Paste image URL or upload"
+                 value={photoURL} onChange={(e) => setPhotoURL(e.target.value)}
+               />
+               <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                 onClick={() => document.getElementById("photoFile").click()}
+               >
+                 📁
+               </button>
+             </div>
+           </div>
+   
+           <input id="photoFile" type="file" accept="image/*" className="hidden"
+            onChange={async (e) => {
+               const file = e.target.files[0];
+               if (file) {
+                 setPhotoURL("Uploading...");
+                 const url = await uploadToCloudinary(file);
+                 setPhotoURL(url);
+               }
+             }}
+           />
 
-              {/* First + Last */}
-              <div className="flex gap-2">
-                <fieldset className="fieldset">
-                  <legend className="fieldset-legend">First Name:</legend>
-                  <input
-                    type="text"
-                    className="input"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                  />
-                </fieldset>
+        {/* Gender & Age */}
+           <div className="flex gap-4 mt-2">
+             <div className="flex-1">
+               <label className="text-sm font-medium text-gray-600">Gender</label>
+               <select className="select w-full" value={gender} onChange={(e) => setGender(e.target.value)}>
+                 <option value="">Select</option>
+                 <option value="Male">Male</option>
+                 <option value="Female">Female</option>
+                 <option value="Other">Other</option>
+               </select>
+             </div>
 
-                <fieldset className="fieldset">
-                  <legend className="fieldset-legend">Last Name:</legend>
-                  <input
-                    type="text"
-                    className="input"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                  />
-                </fieldset>
-              </div>
+             <div className="flex-1">
+               <label className="text-sm font-medium text-gray-600">Age</label>
+               <input type="number" className="input w-full"
+                 value={age} onChange={(e) => setAge(e.target.value)}
+               />
+             </div>
+           </div>
+   
+           {/* About */}
+           <div className="mt-2">
+             <label className="text-sm font-medium text-gray-600">About</label>
+             <textarea className="textarea w-full resize-none h-[64px]" maxLength={150}
+                value={about} onChange={(e) => setAbout(e.target.value)}
+             />
+             <p className="text-xs text-gray-500 text-right">{about.length}/150 characters</p>
+           </div>
+   
+           {/* Skills */}
+           <div className="-mt-2">
+             <label className="text-sm font-medium text-gray-600"> Skills (comma separated)</label>
+             <input className="input w-full" placeholder="React, Node.js, MongoDB"
+              value={skillsInput} onChange={(e) => setSkillsInput(e.target.value)}
+             />
+           </div>
 
-              {/* Photo Upload */}
-              <fieldset className="fieldset">
-                <legend className="fieldset-legend">Photo:</legend>
+           {/* Save */}
+           <button disabled={parsedSkills.length === 0 || photoURL === "Uploading..." || about.length < 75 } className="btn bg-pink-500 disabled:bg-pink-300 hover:bg-pink-600 text-white mt-2" onClick={handleEdit}>
+             Save Changes
+           </button>
+         </div>
+       </div>
+   
+       {/* LIVE PREVIEW */}
+       <div className="sticky top-10">
+         <UserCard
+           user={{ firstName, lastName, photoURL, age, gender, about, skills:parsedSkills }}
+         />
+       </div>
+     </div>
+   );   
 
-                <div className="relative w-84">
-
-                  {/* Hidden file uploader */}
-                  <input
-                    id="photoFile"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={async (e) => {
-                      const file = e.target.files[0];
-                      if (file) {
-                        setPhotoURL("Uploading...");
-                        const url = await uploadToCloudinary(file);
-                        setPhotoURL(url);
-                      }
-                    }}
-                  />
-
-                  {/* Text input (URL or uploaded) */}
-                  <input
-                    type="text"
-                    className="input w-full pr-12"
-                    placeholder="Paste URL or upload photo"
-                    value={photoURL}
-                    onChange={(e) => setPhotoURL(e.target.value)}
-                  />
-
-                  {/* Upload icon */}
-                  <button
-                    type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500 hover:text-gray-700"
-                    onClick={() => document.getElementById("photoFile").click()}
-                  >
-                    📁
-                  </button>
-                </div>
-              </fieldset>
-
-              {/* Gender + Age */}
-              <div className="flex gap-4">
-                <fieldset className="fieldset">
-                  <legend className="fieldset-legend">Gender:</legend>
-
-                  <div className="dropdown dropdown-hover w-40">
-                    <div tabIndex={0} role="button" className="btn w-40">
-                      {gender || "Select Gender"}
-                    </div>
-
-                    <ul className="dropdown-content menu bg-base-100 rounded-box w-32 p-2 shadow-sm">
-                      <li onClick={() => setgender("Male")}>
-                        <a>Male</a>
-                      </li>
-                      <li onClick={() => setgender("Female")}>
-                        <a>Female</a>
-                      </li>
-                      <li onClick={() => setgender("Others")}>
-                        <a>Others</a>
-                      </li>
-                    </ul>
-                  </div>
-                </fieldset>
-
-                <fieldset className="fieldset">
-                  <legend className="fieldset-legend">Age:</legend>
-                  <input
-                    type="number"
-                    className="input w-40"
-                    value={age}
-                    onChange={(e) => setAge(e.target.value)}
-                  />
-                </fieldset>
-              </div>
-
-              {/* About */}
-              <fieldset className="fieldset rounded-md">
-                <legend className="fieldset-legend">About:</legend>
-                <textarea
-                  className="textarea textarea-bordered w-84 min-h-[40px] text-sm resize-none"
-                  value={about}
-                  onChange={(e) => setAbout(e.target.value)}
-                ></textarea>
-              </fieldset>
-
-              {/* Error Toast */}
-              {showErrorToast && (
-                <div className="toast toast-top toast-center z-50 my-15">
-                   <div className="alert alert-error bg-red-600 text-white shadow-lg">
-                    <span className="font-bold">{error}</span>
-                   </div>
-                </div>
-              )}
-
-              {/* save button & skills */}
-              <div className="card-actions  flex justify-between">
-                 <fieldset className="fieldset">
-                  <legend className="fieldset-legend ">Skills:</legend>
-                  <input
-                    className="input w-60"
-                    value={skills}
-                    onChange={(e) =>{
-                      const arr = e.target.value.split(",").map((s)=>s.trim());
-                       setSkills(arr)
-                    }}
-                  />
-                </fieldset>
-                <button className="btn btn-primary mt-8.5 px-6" onClick={handleEdit}>
-                  Save
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Live Preview */}
-        <UserCard
-          user={{ firstName, lastName, photoURL, age, gender, about, skills }}
-        />
-      </div>
-
-      {/* Toast */}
-      {showToast && (
-        <div className="toast toast-top toast-center z-50 my-15">
-          <div className="alert alert-info bg-[#97ee54]">
-            <span className="font-bold">Profile saved successfully.</span>
-          </div>
-        </div>
-      )}
-    </>
-  );
 };
 
 export default EditProfile;
